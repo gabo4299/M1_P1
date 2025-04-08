@@ -3,3 +3,5 @@ node_modules
 /backend/node_modules
 Evaluación.pdf
 Proyecto_Final.pdf
+.env
+/backend/.env
