@@ -1,81 +1,39 @@
 const express = require("express");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { body, validationResult } = require("express-validator");
-const app = express();
+// rutas
+const authRoutes = require("./routes/authRoutes");
+const userRoutes = require("./routes/userRoutes");
 
-// Middleware para permitir el uso de JSON en las solicitudes HTTP
+
+const app = express();
+const { Sequelize } = require("sequelize");
+const dbConfig = require("./config/config.js").development;
+const sequelize = new Sequelize(dbConfig);
 app.use(express.json());
+app.use("/api/auth", authRoutes);
+app.use("/api/user", userRoutes);
 
 // Cargamos las variables de entorno desde el archivo .env
 require("dotenv").config();
 
 
-const SECRET_KEY = process.env.SECRET_KEY;
+
 const PORT = process.env.PORT || 3000;
+sequelize.authenticate()
+.then(() => console.log(" Conectado a PostgreSQL"))
+.catch(err => console.error(" Error al conectar:", err));
+ 
+app.get("/", (req, res) => {
+res.send(" ¡Bienvenido a la API! Usa /clientes o /pedidos para interactuar.");
+});
 
 // Simulamos una base de datos en memoria con un arreglo de usuarios
 const users = [];
 
-// Registro de usuario
-app.post(
-    "/api/auth/register",
-    [
-        body("name").notEmpty().withMessage("El nombre es obligatorio"),
-        body("email").isEmail().withMessage("Debe ser un email válido"),
-        body("password").isLength({ min: 6 }).withMessage("La contraseña debe tener al menos 6 caracteres"),
-    ],
-    async (req, res) => {
-        // Validamos los datos recibidos
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
 
-        const { name, email, password } = req.body;
 
-        // Verificar si el usuario ya existe
-        if (users.find(user => user.email === email)) {
-            return res.status(400).json({ message: "El usuario ya está registrado" });
-        }
-
-        // Encriptar la contraseña
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Guardar usuario en la "base de datos"
-        const newUser = { id: users.length + 1, name, email, password: hashedPassword };
-        users.push(newUser);
-
-        res.status(201).json({ message: "Usuario registrado con éxito" });
-    }
-);
-
-// Inicio de sesión
-app.post("/api/auth/login", async (req, res) => {
-    // Extraemos email y password del cuerpo de la solicitud
-    const { email, password } = req.body;
-
-    // Buscamos el usuario en la base de datos por su email
-    const user = users.find(user => user.email === email);
-    if (!user) return res.status(400).json({ message: "Usuario no encontrado" });
-
-    // Comparamos la contraseña ingresada con la almacenada en la base de datos
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: "Contraseña incorrecta" });
-
-    // Generamos un token JWT con los datos del usuario
-    const token = jwt.sign(
-        { id: user.id, email: user.email }, // Información dentro del token
-        SECRET_KEY, // Clave secreta para firmar el token
-        { expiresIn: process.env.TOKEN_EXPIRATION || "1h" } // Tiempo de expiración del token
-    );
-
-    // Enviamos el token al cliente
-    res.json({ token });
-});
 
 // Obtener datos del usuario autenticado
-app.get("/api/auth/me", (req, res) => {
+app.get("/auth/me", (req, res) => {
     // Extraemos el token del header de autorización
     const token = req.headers.authorization?.split(" ")[1];
 
