@@ -8,7 +8,19 @@ const app = express();
 const { Sequelize } = require("sequelize");
 const dbConfig = require("./config/config.js").development;
 const sequelize = new Sequelize(dbConfig);
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+
 app.use(express.json());
+// const corsOptions = {
+//     origin: process.env.FRONTEND_URL || "*", // ejemplo: http://localhost:5173
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     credentials: true,
+//     };
+// app.use(cors(corsOptions));
+
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/task", taskRoutes);

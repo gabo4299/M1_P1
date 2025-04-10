@@ -45,6 +45,7 @@ async (req, res) => {
                 );
             
                 // Enviamos el token al cliente
+                res.cookie("token", accessToken, { httpOnly: true, secure: false });
                 const msg= {"message": "Login exitoso",
                             "token":token
                 }
