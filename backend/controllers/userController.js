@@ -28,12 +28,9 @@ exports.findUser= async (req,res) =>{
 }
 
 exports.updateUser = async (req,res) =>{
-    const token = req.headers.authorization?.split(" ")[1];
 
-    // Si no hay token, se deniega el acceso
-    if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
     try {
-        const decoded = jwt.verify(token, SECRET_KEY);
+        const decoded = req.user
         const user = await User.findByPk(decoded.id); // Busca el User por ID
         if (!user) return res.status(404).json({ error: "User no encontrado" }); // Si no existe, envía error
         if (req.body.password !== undefined && req.body.password !== '') {
@@ -68,13 +65,10 @@ exports.updateUser = async (req,res) =>{
 
 
 exports.deleteUser = async (req,res) =>{
-    const token = req.headers.authorization?.split(" ")[1];
-
-    // Si no hay token, se deniega el acceso
-    if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
+   
      try {
             // Verificamos y decodificamos el token
-            const decoded = jwt.verify(token, SECRET_KEY);
+            const decoded = req.user;
         
     const user = await User.findByPk(decoded); // Busca el User por ID
     if (!user) return res.status(404).json({ error: "User not fund" }); // Si no existe, envía error

@@ -4,19 +4,13 @@ const {  validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { Op } = require("sequelize");
-const SECRET_KEY = process.env.SECRET_KEY;
 
 
 exports.createTask =
  async (req, res) => {
-        const token = req.headers.authorization?.split(" ")[1];
-
-        // Si no hay token, se deniega el acceso
-        if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
-
-
+        
         try {
-            const decoded = jwt.verify(token, SECRET_KEY);
+            const decoded = req.user;
             
                     // Buscamos el usuario en la base de datos por su ID
                 const user = await User.findByPk(decoded.id);
@@ -45,14 +39,8 @@ exports.createTask =
 
 exports.getEspTask =
  async (req, res) => {
-        const token = req.headers.authorization?.split(" ")[1];
-
-        // Si no hay token, se deniega el acceso
-        if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
-
-
         try {
-            const decoded = jwt.verify(token, SECRET_KEY);
+            const decoded = req.user;
             
                     // Buscamos el usuario en la base de datos por su ID
                 const user = await User.findByPk(decoded.id);
@@ -69,14 +57,8 @@ exports.getEspTask =
 
 exports.getTasks =
  async (req, res) => {
-        const token = req.headers.authorization?.split(" ")[1];
-
-        // Si no hay token, se deniega el acceso
-        if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
-
-
-        try {
-            const decoded = jwt.verify(token, SECRET_KEY);
+           try {
+            const decoded = req.user;
             
                     // Buscamos el usuario en la base de datos por su ID
                 const user = await User.findByPk(decoded.id);
@@ -108,14 +90,8 @@ exports.getTasks =
 
 exports.getEspTask =
  async (req, res) => {
-        const token = req.headers.authorization?.split(" ")[1];
-
-        // Si no hay token, se deniega el acceso
-        if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
-
-
         try {
-            const decoded = jwt.verify(token, SECRET_KEY);
+            const decoded = req.user;
             
                     // Buscamos el usuario en la base de datos por su ID
                 const user = await User.findByPk(decoded.id);
@@ -131,14 +107,8 @@ exports.getEspTask =
 
 exports.updateTask =
  async (req, res) => {
-        const token = req.headers.authorization?.split(" ")[1];
-
-        // Si no hay token, se deniega el acceso
-        if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
-
-
         try {
-            const decoded = jwt.verify(token, SECRET_KEY);
+            const decoded = req.user;
             
                     // Buscamos el usuario en la base de datos por su ID
                 const user = await User.findByPk(decoded.id);
@@ -180,13 +150,9 @@ exports.updateTask =
 
 exports.deleteTask =
  async (req, res) => {
-        const token = req.headers.authorization?.split(" ")[1];
-
-        // Si no hay token, se deniega el acceso
-        if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
 
         try {
-                const decoded = jwt.verify(token, SECRET_KEY);
+                const decoded = req.user;
                 const user = await User.findByPk(decoded.id);
                 const task = await Task.findByPk(req.params.id);
                 if (!user) return res.status(400).json({"msg":"usuario no encontrado"})

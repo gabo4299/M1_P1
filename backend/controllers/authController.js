@@ -43,9 +43,8 @@ async (req, res) => {
                     SECRET_KEY, // Clave secreta para firmar el token
                     { expiresIn: process.env.TOKEN_EXPIRATION || "1h" } // Tiempo de expiración del token
                 );
-            
                 // Enviamos el token al cliente
-                res.cookie("token", accessToken, { httpOnly: true, secure: false });
+                res.cookie("token", token, { httpOnly: true, secure: false });
                 const msg= {"message": "Login exitoso",
                             "token":token
                 }
@@ -59,14 +58,9 @@ async (req, res) => {
 exports.authUser= 
 async (req, res) => {
     
-    const token = req.headers.authorization?.split(" ")[1];
-
-    // Si no hay token, se deniega el acceso
-    if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
-
     try {
         // Verificamos y decodificamos el token
-        const decoded = jwt.verify(token, SECRET_KEY);
+        const decoded = req.user
 
         // Buscamos el usuario en la base de datos por su ID
         const user = await User.findByPk(decoded.id);
