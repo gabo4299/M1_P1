@@ -1,5 +1,10 @@
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
+const SECRET_KEY = process.env.SECRET_KEY;
 const { User } = require('../models');
-const { use } = require('../routes/authRoutes');
+
 
 // Obtener todos los clientes
 exports.getUsers = async (req, res) => {
@@ -23,12 +28,38 @@ exports.findUser= async (req,res) =>{
 }
 
 exports.updateUser = async (req,res) =>{
+    const token = req.headers.authorization?.split(" ")[1];
+
+    // Si no hay token, se deniega el acceso
+    if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
     try {
-    const user = await User.findByPk(req.params.id); // Busca el User por ID
-    if (!user) return res.status(404).json({ error: "User not fund" }); // Si no existe, envía error
-    await user.update(req.body); // Actualiza el User con los nuevos datos
-    res.json(user); // Devuelve el User actualizado
+        const decoded = jwt.verify(token, SECRET_KEY);
+        const user = await User.findByPk(decoded.id); // Busca el User por ID
+        if (!user) return res.status(404).json({ error: "User no encontrado" }); // Si no existe, envía error
+        if (req.body.password !== undefined && req.body.password !== '') {
+
+            if (req.body.password.length < 6) {
+                return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+              }
+            const hashedPassword = await bcrypt.hash(req.body.password, 10);
+            req.body.password=hashedPassword
+             
+        }
+        else{
+            req.body.password=user.password
+        }
+        if (req.body.name === undefined) req.body.name = user.name;
+
+         req.body.email = user.email;
+        
+
+
+
+        
+        await user.update(req.body); // Actualiza el User con los nuevos datos
+        res.json(user); // Devuelve el User actualizado
     }catch(error){
+        console.log("error ",error)
         res.status(500).json({ error: error.message });
     }
 
@@ -37,8 +68,19 @@ exports.updateUser = async (req,res) =>{
 
 
 exports.deleteUser = async (req,res) =>{
-    const user = await User.findByPk(req.params.id); // Busca el User por ID
+    const token = req.headers.authorization?.split(" ")[1];
+
+    // Si no hay token, se deniega el acceso
+    if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
+     try {
+            // Verificamos y decodificamos el token
+            const decoded = jwt.verify(token, SECRET_KEY);
+        
+    const user = await User.findByPk(decoded); // Busca el User por ID
     if (!user) return res.status(404).json({ error: "User not fund" }); // Si no existe, envía error
     await user.destroy(); // Elimina el User de la base de datos
     res.json({ mensaje: "User deleted" }); // Devuelve mensaje de éxito
+     }catch(Error){
+        res.status(401).json({ message: "Token inválido o expirado" });
+     }
     }

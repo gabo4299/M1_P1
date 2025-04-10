@@ -1,0 +1,206 @@
+const { Task,User } = require('../models');
+const {  validationResult } = require("express-validator");
+
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+const { Op } = require("sequelize");
+const SECRET_KEY = process.env.SECRET_KEY;
+
+
+exports.createTask =
+ async (req, res) => {
+        const token = req.headers.authorization?.split(" ")[1];
+
+        // Si no hay token, se deniega el acceso
+        if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
+
+
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY);
+            
+                    // Buscamos el usuario en la base de datos por su ID
+                const user = await User.findByPk(decoded.id);
+                if (!user) return res.status(400).json({"msg":"usuario no encontrado"})
+                const errors = validationResult(req);
+                if (!errors.isEmpty()) {
+                    return res.status(400).json({ errors: errors.array() });
+                }
+                req.body.userId=user.id
+
+                const task = await Task.create(req.body);
+                const { updatedAt,createdAt, ...taskWithoutDates } = task.dataValues;
+                
+                const message= {
+                    "message":"Tarea creada exitosamente",
+                    "task":taskWithoutDates
+                }
+                res.status(201).json(message);
+
+        }catch (error){
+                res.status(500).json({ error: error.message });
+        }
+};
+
+
+
+exports.getEspTask =
+ async (req, res) => {
+        const token = req.headers.authorization?.split(" ")[1];
+
+        // Si no hay token, se deniega el acceso
+        if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
+
+
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY);
+            
+                    // Buscamos el usuario en la base de datos por su ID
+                const user = await User.findByPk(decoded.id);
+                if (!user) return res.status(400).json({"msg":"usuario no encontrado"})
+
+                const task = await Task.findByPk(req.params.id);
+                
+                task ? res.json(task) : res.status(404).json({ error: "Tarea no encontrado" });
+
+        }catch (error){
+                res.status(500).json({ error: error.message });
+        }
+};
+
+exports.getTasks =
+ async (req, res) => {
+        const token = req.headers.authorization?.split(" ")[1];
+
+        // Si no hay token, se deniega el acceso
+        if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
+
+
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY);
+            
+                    // Buscamos el usuario en la base de datos por su ID
+                const user = await User.findByPk(decoded.id);
+                if (!user) return res.status(400).json({"msg":"usuario no encontrado"})
+                const { status, search } = req.query;
+                const filter = {};
+                console.log("los query ",req.query)
+                // Si viene status como query param, lo usamos para filtrar
+                if (status) {
+                  filter.status = req.query.status;
+                }
+                if (search) {
+                filter.title = {
+                        [Op.like]: `%${search}%`  // Búsqueda que contenga el texto
+                };
+                }
+                filter.userId=user.id
+
+                const tasks = await Task.findAll({
+                    where: filter,
+                    attributes: { exclude: ['createdAt','updatedAt'] }
+                    });
+                tasks ? res.json(tasks) : res.status(404).json({ error: "Tarea no encontrado" });
+
+        }catch (error){
+                res.status(500).json({ error: error.message });
+        }
+};
+
+exports.getEspTask =
+ async (req, res) => {
+        const token = req.headers.authorization?.split(" ")[1];
+
+        // Si no hay token, se deniega el acceso
+        if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
+
+
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY);
+            
+                    // Buscamos el usuario en la base de datos por su ID
+                const user = await User.findByPk(decoded.id);
+                if (!user) return res.status(400).json({"msg":"usuario no encontrado"})
+
+                const task = await Task.findByPk(req.params.id);
+                task ? res.json(task) : res.status(404).json({ error: "Task no encontrado" });
+
+        }catch (error){
+                res.status(500).json({ error: error.message });
+        }
+};
+
+exports.updateTask =
+ async (req, res) => {
+        const token = req.headers.authorization?.split(" ")[1];
+
+        // Si no hay token, se deniega el acceso
+        if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
+
+
+        try {
+            const decoded = jwt.verify(token, SECRET_KEY);
+            
+                    // Buscamos el usuario en la base de datos por su ID
+                const user = await User.findByPk(decoded.id);
+                const task = await Task.findByPk(req.params.id);
+                if (!user) return res.status(400).json({"msg":"usuario no encontrado"})
+                if (!task) return res.status(400).json({"msg":"tarea no encontrado"})
+                const errors = validationResult(req);
+                if (!errors.isEmpty()) {
+                    return res.status(400).json({ errors: errors.array() });
+                }
+                if (user.id !== task.userId) return res.status(400).json({"msg":"usuario no autorizado"})
+                //  cambio de titulo
+                const updateData={ }
+                if (req.body.title !== undefined && req.body.title !== "" ){
+                        updateData.title=req.body.title
+                }
+                if (req.body.dueDate!== undefined) updateData.dueDate=req.body.dueDate
+                if (req.body.status !== undefined){
+                        
+                        if (task.status === "completada") return res.status(500).json({ error: "Solo se puede eliminar no cambiar estado" });
+                        if (task.status === "pendiente" &&  req.body.status !== "en progreso")  return res.status(500).json({ error: "Solo se puede pasar de pendiente a progreso" });
+                        else if (task.status === "pendiente") updateData.status=req.body.status
+                        if (task.status === "en progreso" &&  req.body.status !== "completada")  return res.status(500).json({ error: "Solo se puede pasar de en progreso  a completada" });
+                        else if (task.status === "en progreso") updateData.status=req.body.status
+                        
+
+                }       
+                if (req.body.description !== undefined) updateData.description=req.body.description
+                if (req.body.dueData !== undefined && req.body.dueData) updateData.description=req.body.description
+ 
+                await task.update(updateData); // Actualiza el User con los nuevos datos
+                res.json(task); // Devuelve el User actualizado
+
+        }catch (error){
+                res.status(500).json({ error: error.message });
+        }
+};
+
+
+exports.deleteTask =
+ async (req, res) => {
+        const token = req.headers.authorization?.split(" ")[1];
+
+        // Si no hay token, se deniega el acceso
+        if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
+
+        try {
+                const decoded = jwt.verify(token, SECRET_KEY);
+                const user = await User.findByPk(decoded.id);
+                const task = await Task.findByPk(req.params.id);
+                if (!user) return res.status(400).json({"msg":"usuario no encontrado"})
+                if (!task) return res.status(400).json({"msg":"tarea no encontrado"})
+                if (user.id !== task.userId) return res.status(400).json({"msg":"usuario no autorizado"})
+                if (task.status !== "completada") return res.status(500).json({ error: "Solo se puede eliminar cuando este completada" });
+                await task.destroy();
+                res.json({ mensaje: "Task deleted" }); 
+
+        }
+        catch (error){
+                res.status(500).json({ error: error.message });
+      
+
+        }
+
+ }

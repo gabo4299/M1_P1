@@ -2,6 +2,7 @@ const { User } = require('../models');
 const {  validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { use } = require('../routes/authRoutes');
 require("dotenv").config();
 
 const SECRET_KEY = process.env.SECRET_KEY;
@@ -18,7 +19,7 @@ exports.createUser =
                  req.body.password=hashedPassword
                 
                 const user = await User.create(req.body);
-                res.status(201).json(user);
+                res.status(201).json({"name":user.name,"email":user.email,"password":user.password});
 
         }catch (error){
                 res.status(500).json({ error: error.message });
@@ -44,7 +45,10 @@ async (req, res) => {
                 );
             
                 // Enviamos el token al cliente
-                res.json({ token });   
+                const msg= {"message": "Login exitoso",
+                            "token":token
+                }
+                res.json( msg );   
 
     }catch (error){
             res.status(500).json({ error: error.message });
