@@ -17,6 +17,7 @@ const corsOptions = {
     origin: process.env.FRONTEND_URL || "*", // ejemplo: http://localhost:5173
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
     };
 app.use(cors(corsOptions));
 
