@@ -6,6 +6,7 @@ exports.authMiddleware=(req, res, next)=> {
     // // Si no hay token, se deniega el acceso
     // if (!token) return res.status(401).json({ message: "Acceso denegado, token requerido" });
     const token = req.cookies.token;
+    console.log(token, "res es ",req.cookies)
     if (!token) return res.status(401).json({ message: "No autorizado" });
   
     jwt.verify(token, SECRET_KEY, (err, user) => {

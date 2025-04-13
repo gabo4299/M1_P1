@@ -44,7 +44,7 @@ async (req, res) => {
                     { expiresIn: process.env.TOKEN_EXPIRATION || "1h" } // Tiempo de expiración del token
                 );
                 // Enviamos el token al cliente
-                res.cookie("token", token, { httpOnly: true, secure: true });
+                res.cookie("token", token, { httpOnly: true, secure: true ,sameSite: 'None'});
                 const msg= {"message": "Login exitoso",
                             "token":token
                 }
