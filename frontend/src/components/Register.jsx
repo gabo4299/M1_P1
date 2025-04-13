@@ -34,7 +34,7 @@ const Register = () => {
     return (
 <Container >
 
-        <div class="mt-4    sm:mx-auto sm:w-full sm:max-w-sm">
+        <div class="mt-0    sm:mx-auto sm:w-full sm:max-w-sm">
        
             <img className="mx-auto h-35 w-auto  " src="https://www.ucb.edu.bo/wp-content/uploads/2024/07/UCB-Ereccion-Canonica_Escudo-01-copia-1024x768.png"
              alt="Your Company"/>
