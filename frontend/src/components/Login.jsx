@@ -57,7 +57,8 @@ const Login = () => {
        
             <img className="py-6 mx-auto h-50 w-auto  " src="https://www.ucb.edu.bo/wp-content/uploads/2024/07/UCB-Ereccion-Canonica_Escudo-01-copia-1024x768.png"
              alt="Your Company"/>
-            <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900 dark:text-white">Sign in to your account</h2>
+            <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text
+            -gray-900 dark:text-white">Ingresa a tu cuenta</h2>
         </div>
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form onSubmit={handleLogin} class="space-y-6" action="#" method="POST">
@@ -67,7 +68,7 @@ const Login = () => {
                 class={`block text-sm/6 font-medium 
                 ${errorLogin ?'text-red-600'  :'text-gray-900 dark:text-white' }
                 `}
-                >Email address</label>
+                >Correo</label>
                 </div>
                 <div class="mt-2">
                     
@@ -85,7 +86,7 @@ const Login = () => {
                 class={`block text-sm/6 font-medium 
                 ${errorLogin ?'text-red-600'  :'text-gray-900 dark:text-white' }
                 `}>
-                    Password</label>
+                    Contraseña</label>
                 </div>
                 <div class="mt-2">
                     
@@ -98,7 +99,7 @@ const Login = () => {
             </div>
 
             <div>
-                <Button   type="submit">Sign in</Button>
+                <Button   type="submit">Entrar</Button>
             </div>
         </form>
 

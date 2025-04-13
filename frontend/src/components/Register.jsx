@@ -47,10 +47,10 @@ const Register = () => {
         <div>
             <div class="flex items-center justify-between">
                 <label for="name" 
-                class="block text-sm/6 font-medium text-gray-900 dark:text-white">Name</label>
+                class="block text-sm/6 font-medium text-gray-900 dark:text-white">Nombre</label>
                 </div>
                 <div class="mt-2">
-                    <Input  name="email" id="email" 
+                    <Input  name="name" id="name" 
                     required 
                     value={name}  // El valor del campo se establece con el estado 'username'
                     onChange={(e) => setName(e.target.value)}  // Cuando el valor cambia, actualiza el estado 'username'
@@ -60,7 +60,7 @@ const Register = () => {
             <div>
             <div class="flex items-center justify-between">
                 <label for="email" 
-                class="block text-sm/6 font-medium text-gray-900 dark:text-white">Email address</label>
+                class="block text-sm/6 font-medium text-gray-900 dark:text-white">Correo</label>
                 </div>
                 <div class="mt-2">
                     <Input type="email" name="email" id="email" 
@@ -73,7 +73,8 @@ const Register = () => {
 
             <div>
                 <div class="flex items-center justify-between">
-                    <label for="password" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Password</label>
+                    <label for="password" class="block text-sm/6 font-medium text-gray-900 
+                    dark:text-white">Contraseña</label>
                 </div>
                 <div class="mt-2">
                     <Input type="password" name="password" id="password" 
@@ -86,7 +87,7 @@ const Register = () => {
 
 
             <div>
-                <Button   type="submit">Register</Button>
+                <Button   type="submit">Registrar</Button>
             </div>
         </form>
 
