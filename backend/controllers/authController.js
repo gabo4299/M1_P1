@@ -13,7 +13,8 @@ exports.createUser =
         try {
                 const errors = validationResult(req);
                 if (!errors.isEmpty()) {
-                    return res.status(400).json({ errors: errors.array() });
+                    const mensajeUnico = errors.array().map(error => error.msg).join(", ");
+                    return res.status(400).json({ message: mensajeUnico });
                 }
                  const hashedPassword = await bcrypt.hash(req.body.password, 10);
                  req.body.password=hashedPassword
@@ -22,13 +23,12 @@ exports.createUser =
                 res.status(201).json({"name":user.name,"email":user.email,"password":user.password});
 
         }catch (error){
-                res.status(500).json({ error: error.message });
+                res.status(500).json({ message: error.message });
         }
 };
    
 exports.loginUser= 
 async (req, res) => {
-
     try {
    
         const { email, password } = req.body;
@@ -72,4 +72,12 @@ async (req, res) => {
         // En caso de error, informamos que el token es inválido o ha expirado
         res.status(401).json({ message: "Token inválido o expirado" });
     }
+};
+
+
+exports.logoutAuth= 
+async (req, res) => {
+   res.clearCookie("token");
+   console.log("cerrada sesion ")
+  res.json({ message: "Sesión cerrada" });
 };

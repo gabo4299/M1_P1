@@ -57,7 +57,7 @@ exports.updateUser = async (req,res) =>{
         res.json(user); // Devuelve el User actualizado
     }catch(error){
         console.log("error ",error)
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: error.message });
     }
 
     }
@@ -71,7 +71,7 @@ exports.deleteUser = async (req,res) =>{
             const decoded = req.user;
         
     const user = await User.findByPk(decoded); // Busca el User por ID
-    if (!user) return res.status(404).json({ error: "User not fund" }); // Si no existe, envía error
+    if (!user) return res.status(404).json({ message: "User not fund" }); // Si no existe, envía error
     await user.destroy(); // Elimina el User de la base de datos
     res.json({ mensaje: "User deleted" }); // Devuelve mensaje de éxito
      }catch(Error){
