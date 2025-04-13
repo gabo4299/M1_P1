@@ -77,7 +77,10 @@ async (req, res) => {
 
 exports.logoutAuth= 
 async (req, res) => {
-   res.clearCookie("token");
+   res.clearCookie("token",{ httpOnly: true,
+    secure: true, // o false si estás en local
+    sameSite: 'none', // si estás usando cross-domain
+    path: '/',});
    console.log("cerrada sesion ")
   res.json({ message: "Sesión cerrada" });
 };

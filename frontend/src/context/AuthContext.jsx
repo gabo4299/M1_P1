@@ -86,6 +86,7 @@ export const AuthProvider = ({ children }) => {
         
         // Borra la información del usuario en el estado local
         setUser(null);
+        
     };
 
     // Devuelve el proveedor de contexto AuthContext, pasando el estado del usuario y las funciones login y logout
